@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JWT Auth App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+
+        .header {
+            background: #2c3e50;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .tabs {
+            display: flex;
+            background: #34495e;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            color: white;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+            .tab:hover {
+                background: #3c5a78;
+            }
+
+            .tab.active {
+                background: #1abc9c;
+            }
+
+        .content {
+            padding: 30px;
+        }
+
+        .form-section {
+            display: none;
+        }
+
+            .form-section.active {
+                display: block;
+                animation: fadeIn 0.5s;
+            }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ecf0f1;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+            input:focus, select:focus {
+                outline: none;
+                border-color: #1abc9c;
+            }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #1abc9c;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+            button:hover {
+                background: #16a085;
+            }
+
+            button:disabled {
+                background: #bdc3c7;
+                cursor: not-allowed;
+            }
+
+        .message {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+
+
+        .user-info {
+            background: #e8f6f3;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .api-response {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            max-height: 200px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔐 JWT Auth App</h1>
+            <p>Демонстрация работы с ASP.NET Core Identity и JWT</p>
+        </div>
+
+        <div class="tabs">
+            <div class="tab active" data-tab="login">Вход</div>
+            <div class="tab" data-tab="register">Регистрация</div>
+            <div class="tab" data-tab="profile">Профиль</div>
+        </div>
+
+        <div class="content">
+            <!-- Сообщения -->
+            <div id="message" class="message hidden"></div>
+
+            <!-- Форма входа -->
+            <div id="login-section" class="form-section active">
+                <h2>Вход в систему</h2>
+                <form id="login-form">
+                    <div class="form-group">
+                        <label for="login-email">Email:</label>
+                        <input type="email" id="login-email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="login-password">Пароль:</label>
+                        <input type="password" id="login-password" required>
+                    </div>
+                    <button type="submit">Войти</button>
+                </form>
+            </div>
+
+            <!-- Форма регистрации -->
+            <div id="register-section" class="form-section">
+                <h2>Регистрация нового пользователя</h2>
+                <form id="register-form">
+                    <div class="form-group">
+                        <label for="register-email">Email:</label>
+                        <input type="email" id="register-email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="register-password">Пароль (мин. 6 символов):</label>
+                        <input type="password" id="register-password" required minlength="6">
+                    </div>
+                    <div class="form-group">
+                        <label for="temperature-format">Формат температуры:</label>
+                        <select id="temperature-format" required>
+                            <option value="Celsius">Цельсий (°C)</option>
+                            <option value="Fahrenheit">Фаренгейт (°F)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="time-format">Формат времени:</label>
+                        <select id="time-format" required>
+                            <option value="24h">24-часовой</option>
+                            <option value="12h">12-часовой</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="timezone">Часовой пояс:</label>
+                        <select id="timezone" required>
+                            <option value="UTC">UTC</option>
+                            <option value="Europe/Moscow">Europe/Moscow</option>
+                            <option value="America/New_York">America/New_York</option>
+                            <option value="Europe/London">Europe/London</option>
+                            <option value="Asia/Tokyo">Asia/Tokyo</option>
+                        </select>
+                    </div>
+                    <button type="submit">Зарегистрироваться</button>
+                </form>
+            </div>
+
+            <!-- Профиль пользователя -->
+            <div id="profile-section" class="form-section">
+                <h2>Профиль пользователя</h2>
+                <div id="user-info" class="user-info hidden">
+                    <p><strong>Email:</strong> <span id="user-email"></span></p>
+                    <p><strong>Формат температуры:</strong> <span id="user-temperature"></span></p>
+                    <p><strong>Формат времени:</strong> <span id="user-time"></span></p>
+                    <p><strong>Часовой пояс:</strong> <span id="user-timezone"></span></p>
+                </div>
+
+                <h3>Обновить настройки</h3>
+                <form id="update-profile-form">
+                    <div class="form-group">
+                        <label for="update-temperature">Формат температуры:</label>
+                        <select id="update-temperature" required>
+                            <option value="Celsius">Цельсий (°C)</option>
+                            <option value="Fahrenheit">Фаренгейт (°F)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="update-time">Формат времени:</label>
+                        <select id="update-time" required>
+                            <option value="24h">24-часовой</option>
+                            <option value="12h">12-часовой</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="update-timezone">Часовой пояс:</label>
+                        <select id="update-timezone" required>
+                            <option value="UTC">UTC</option>
+                            <option value="Europe/Moscow">Europe/Moscow</option>
+                            <option value="America/New_York">America/New_York</option>
+                            <option value="Europe/London">Europe/London</option>
+                            <option value="Asia/Tokyo">Asia/Tokyo</option>
+                        </select>
+                    </div>
+                    <button type="submit">Обновить профиль</button>
+                </form>
+
+                <div id="profile-response" class="api-response hidden"></div>
+            </div>
+
+
+        </div>
+    </div>
+
+    <script>
+        class AuthApp {
+            constructor() {
+                this.baseUrl = 'http://localhost:5212/api'; // Замените на ваш URL
+                this.token = localStorage.getItem('jwtToken');
+
+                this.initializeEventListeners();
+                this.checkAuthState();
+            }
+
+            initializeEventListeners() {
+                // Переключение табов
+                document.querySelectorAll('.tab').forEach(tab => {
+                    tab.addEventListener('click', (e) => {
+                        this.switchTab(e.target.dataset.tab);
+                    });
+                });
+
+                // Формы
+                document.getElementById('login-form').addEventListener('submit', (e) => this.login(e));
+                document.getElementById('register-form').addEventListener('submit', (e) => this.register(e));
+                document.getElementById('update-profile-form').addEventListener('submit', (e) => this.updateProfile(e));
+
+                // Выход
+                document.getElementById('logout-btn')?.addEventListener('click', () => this.logout());
+            }
+
+            switchTab(tabName) {
+                // Обновляем активные табы
+                document.querySelectorAll('.tab').forEach(tab => {
+                    tab.classList.toggle('active', tab.dataset.tab === tabName);
+                });
+
+                // Показываем соответствующий раздел
+                document.querySelectorAll('.form-section').forEach(section => {
+                    section.classList.toggle('active', section.id === `${tabName}-section`);
+                });
+
+                // Если переключились на профиль и авторизованы - загружаем данные
+                if (tabName === 'profile' && this.token) {
+                    this.loadUserProfile();
+                }
+            }
+
+            showMessage(message, type = 'success') {
+                const messageEl = document.getElementById('message');
+                messageEl.textContent = message;
+                messageEl.className = `message ${type}`;
+                messageEl.classList.remove('hidden');
+
+                setTimeout(() => {
+                    messageEl.classList.add('hidden');
+                }, 5000);
+            }
+
+            async makeRequest(url, options = {}) {
+
+                const config = {
+                    ...options,  // сначала options
+                    headers: {   // затем headers (перезаписывает headers из options)
+                        'Content-Type': 'application/json',
+                        ...options.headers
+                    }
+                };
+
+                const response = await fetch(url, config);
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.errors ? Object.values(data.errors).flat().join(', ') : data.message || 'Ошибка запроса');
+                }
+                return { success: true, data };
+            } catch(error) {
+                return { success: false, error: error.message };
+            }
+
+
+            async login(e) {
+                e.preventDefault();
+
+                const email = document.getElementById('login-email').value;
+                const password = document.getElementById('login-password').value;
+
+                const result = await this.makeRequest(`${this.baseUrl}/auth/login`, {
+                    method: 'POST',
+                    body: JSON.stringify({ email, password })
+                });
+
+                if (result.success) {
+                    this.token = result.data.token;
+                    localStorage.setItem('jwtToken', this.token);
+                    this.showMessage('Успешный вход!');
+                    this.checkAuthState();
+                    this.switchTab('profile');
+                } else {
+                    this.showMessage(result.error, 'error');
+                }
+            }
+
+            async register(e) {
+                e.preventDefault();
+
+                try {
+                    const formData = {
+                        email: document.getElementById('register-email').value,
+                        password: document.getElementById('register-password').value,
+                        temperatureFormat: document.getElementById('temperature-format').value,
+                        timeFormat: document.getElementById('time-format').value,
+                        timeZone: document.getElementById('timezone').value
+                    };
+
+                    const result = await this.makeRequest(`${this.baseUrl}/auth/register`, {
+                        method: 'POST',
+                        body: JSON.stringify(formData)
+                    });
+
+                    if (result.success) {
+                        this.token = result.data.token;
+                        localStorage.setItem('jwtToken', this.token);
+                        this.showMessage('Регистрация успешна!');
+                        this.checkAuthState();
+                        this.switchTab('profile');
+                    } else {
+                        this.showMessage(result.error, 'error');
+                    }
+                }
+                catch(error)
+                {
+                    this.showMessage('Ошибка регистрации ' + error);
+                }
+            }
+
+            async loadUserProfile() {
+                const result = await this.makeRequest(`${this.baseUrl}/auth/profile`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${this.token}`
+                    }
+                });
+
+                if (result.success) {
+                    const user = result.data;
+                    document.getElementById('user-email').textContent = user.email;
+                    document.getElementById('user-temperature').textContent =
+                        user.temperatureFormat === 'Celsius' ? 'Цельсий (°C)' : 'Фаренгейт (°F)';
+                    document.getElementById('user-time').textContent =
+                        user.timeFormat === '24h' ? '24-часовой' : '12-часовой';
+                    document.getElementById('user-timezone').textContent = user.timeZone;
+
+                    // Заполняем форму обновления
+                    document.getElementById('update-temperature').value = user.temperatureFormat;
+                    document.getElementById('update-time').value = user.timeFormat;
+                    document.getElementById('update-timezone').value = user.timeZone;
+
+                    document.getElementById('user-info').classList.remove('hidden');
+                }
+            }
+
+            async updateProfile(e) {
+                e.preventDefault();
+
+                const formData = {
+                    temperatureFormat: document.getElementById('update-temperature').value,
+                    timeFormat: document.getElementById('update-time').value,
+                    timeZone: document.getElementById('update-timezone').value
+                };
+
+                try {
+
+                    const response = await this.makeRequest(`${this.baseUrl}/auth/profile`, {
+                        method: 'PUT',
+                        headers: {
+                            'accept': '*/*',
+                            'Authorization': `Bearer ${this.token}`
+                        },
+                        body: JSON.stringify(formData)
+                    });
+
+
+                    console.log('Status Text:', response.data);
+
+                    if (!response.success) {
+                        this.showMessage(`HTTP error! status: ${response.status}`);
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+
+                    this.showMessage('Профиль успешно обновлён');
+
+                } catch (error) {
+                    console.error('Error:', error);
+                }
+
+            }
+
+
+            logout() {
+                this.token = null;
+                localStorage.removeItem('jwtToken');
+                this.checkAuthState();
+                this.showMessage('Вы вышли из системы');
+                this.switchTab('login');
+            }
+
+            checkAuthState() {
+
+                if (this.token) {
+                    // Показываем все табы для авторизованных пользователей
+                    document.querySelectorAll('.tab').forEach(tab => {
+                        tab.style.display = 'flex';
+                    });
+                } else {
+
+                    // Скрываем табу профиля для неавторизованных
+                    document.querySelectorAll('.tab').forEach(tab => {
+                        if (tab.dataset.tab === 'profile') {
+                            tab.style.display = 'none';
+                        } else {
+                            tab.style.display = 'flex';
+                        }
+                    });
+                }
+            }
+        }
+
+        // Инициализация приложения при загрузке страницы
+        document.addEventListener('DOMContentLoaded', () => {
+            new AuthApp();
+        });
+    </script>
+</body>
+</html>

@@ -30,9 +30,10 @@ namespace adrc.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "TEXT", nullable: false),
-                    TemperatureFormat = table.Column<string>(type: "TEXT", maxLength: 10, nullable: false, defaultValue: "Celsius"),
-                    TimeFormat = table.Column<string>(type: "TEXT", maxLength: 10, nullable: false, defaultValue: "24h"),
+                    UseFarenheit = table.Column<bool>(type: "INTEGER", nullable: false, defaultValue: false),
+                    Use12HoutFormat = table.Column<bool>(type: "INTEGER", nullable: false, defaultValue: false),
                     TimeZone = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false, defaultValue: "UTC"),
+                    Language = table.Column<string>(type: "TEXT", maxLength: 10, nullable: false),
                     UserName = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),

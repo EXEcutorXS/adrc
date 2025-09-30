@@ -31,11 +31,12 @@ namespace adrc.Controllers
         {
             var user = new ApplicationUser
             {
-                UserName = model.Email,
+                UserName = model.UserName,
                 Email = model.Email,
-                TemperatureFormat = model.TemperatureFormat,
-                TimeFormat = model.TimeFormat,
-                TimeZone = model.TimeZone
+                UseFarenheit = model.UseFarenheit,
+                Use12HoutFormat = model.Use12HourFormat,
+                TimeZone = model.TimeZone,
+                Language = model.Language,
             }; 
 
             var result = await _userManager.CreateAsync(user, model.Password);
@@ -43,7 +44,7 @@ namespace adrc.Controllers
             if (result.Succeeded)
             {
                 // Можно добавить роль по умолчанию
-                await _userManager.AddToRoleAsync(user, "User");
+                //await _userManager.AddToRoleAsync(user, "User");
 
                 var token = await _jwtService.GenerateToken(user);
 
@@ -54,9 +55,10 @@ namespace adrc.Controllers
                     User = new UserProfile
                     {
                         Email = user.Email,
-                        TemperatureFormat = user.TemperatureFormat,
-                        TimeFormat = user.TimeFormat,
-                        TimeZone = user.TimeZone
+                        UseFarenheit = user.UseFarenheit,
+                        Use12HourFormat = user.Use12HoutFormat,
+                        TimeZone = user.TimeZone,
+                        Language= user.Language
                     }
                 });
             }
@@ -67,7 +69,9 @@ namespace adrc.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login(LoginModel model)
         {
-            var user = await _userManager.FindByEmailAsync(model.Email);
+            var user = await _userManager.FindByNameAsync(model.Login);
+            if (user == null)
+                user = await _userManager.FindByEmailAsync(model.Login); //Tring to enter by email
             if (user == null)
                 return Unauthorized("Invalid credentials");
 
@@ -83,10 +87,12 @@ namespace adrc.Controllers
                     Expiration = DateTime.Now.AddHours(2),
                     User = new UserProfile
                     {
+                        UserName = user.UserName,
                         Email = user.Email,
-                        TemperatureFormat = user.TemperatureFormat,
-                        TimeFormat = user.TimeFormat,
-                        TimeZone = user.TimeZone
+                        UseFarenheit = user.UseFarenheit,
+                        Use12HourFormat = user.Use12HoutFormat,
+                        TimeZone = user.TimeZone,
+                        Language = user.Language
                     }
                 });
             }
@@ -104,10 +110,12 @@ namespace adrc.Controllers
 
             return Ok(new UserProfile
             {
+                UserName = user.UserName,
                 Email = user.Email,
-                TemperatureFormat = user.TemperatureFormat,
-                TimeFormat = user.TimeFormat,
-                TimeZone = user.TimeZone
+                UseFarenheit = user.UseFarenheit,
+                Use12HourFormat = user.Use12HoutFormat,
+                TimeZone = user.TimeZone,
+                Language= user.Language
             });
         }
 
@@ -119,9 +127,10 @@ namespace adrc.Controllers
             if (user == null)
                 return NotFound();
 
-            user.TemperatureFormat = model.TemperatureFormat;
-            user.TimeFormat = model.TimeFormat;
+            user.UseFarenheit = model.UseFarenheit;
+            user.Use12HoutFormat = model.Use12HourFormat;
             user.TimeZone = model.TimeZone;
+            user.Language = model.Language;
 
             var result = await _userManager.UpdateAsync(user);
 

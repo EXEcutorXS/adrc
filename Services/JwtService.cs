@@ -25,11 +25,12 @@ namespace adrc.Services
                 new Claim(JwtRegisteredClaimNames.Sub, user.Id),
                 new Claim(JwtRegisteredClaimNames.Email, user.Email),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim(ClaimTypes.NameIdentifier, user.Id),
+                new Claim(ClaimTypes.NameIdentifier, user.UserName),
                 new Claim(ClaimTypes.Email, user.Email),
-                new Claim("temperatureFormat", user.TemperatureFormat),
-                new Claim("timeFormat", user.TimeFormat),
-                new Claim("timeZone", user.TimeZone)
+                new Claim("UseFarenheit", user.UseFarenheit.ToString().ToLower()),
+                new Claim("Use12HoutFormat", user.Use12HoutFormat.ToString().ToLower()),
+                new Claim("timeZone", user.TimeZone),
+                new Claim("Language", user.Language)
             };
 
             // Добавляем роли пользователя

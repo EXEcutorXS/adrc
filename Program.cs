@@ -156,19 +156,6 @@ app.MapFallbackToFile("index.html");
 // Initialize Database
 await InitializeDatabase(app);
 
-// Diagnostic endpoints
-app.MapGet("/api/debug/auth-test", () =>
-{
-    return Results.Ok(new { message = "Public endpoint works" });
-})
-.WithName("PublicTest");
-
-app.MapGet("/api/debug/auth-test-protected", () =>
-{
-    return Results.Ok(new { message = "Protected endpoint works" });
-})
-.RequireAuthorization() // Требует авторизации
-.WithName("ProtectedTest");
 
 app.Run();
 
@@ -183,7 +170,6 @@ async Task InitializeDatabase(WebApplication app)
         await context.Database.MigrateAsync();
         Console.WriteLine("Database migrated successfully.");
 
-        await SeedData(serviceProvider);
     }
     catch (Exception ex)
     {
@@ -191,47 +177,6 @@ async Task InitializeDatabase(WebApplication app)
     }
 }
 
-async Task SeedData(IServiceProvider serviceProvider)
-{
-    var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-    var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-
-    // Create roles
-    string[] roles = { "Admin", "User" };
-    foreach (var roleName in roles)
-    {
-        if (!await roleManager.RoleExistsAsync(roleName))
-        {
-            await roleManager.CreateAsync(new IdentityRole(roleName));
-            Console.WriteLine($"Created role: {roleName}");
-        }
-    }
-
-    // Create admin user
-    var adminEmail = "admin@example.com";
-    if (await userManager.FindByEmailAsync(adminEmail) == null)
-    {
-        var admin = new ApplicationUser
-        {
-            UserName = adminEmail,
-            Email = adminEmail,
-            TemperatureFormat = "Celsius",
-            TimeFormat = "24h",
-            TimeZone = "UTC"
-        };
-
-        var result = await userManager.CreateAsync(admin, "Admin123!");
-        if (result.Succeeded)
-        {
-            await userManager.AddToRoleAsync(admin, "Admin");
-            Console.WriteLine("Admin user created successfully.");
-        }
-        else
-        {
-            Console.WriteLine($"Failed to create admin: {string.Join(", ", result.Errors)}");
-        }
-    }
-}
 
 string GenerateRandomKey(int length)
 {

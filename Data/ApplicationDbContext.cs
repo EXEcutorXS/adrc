@@ -18,13 +18,11 @@ namespace adrc.Data
             // Конфигурация дополнительных полей пользователя
             builder.Entity<ApplicationUser>(b =>
             {
-                b.Property(u => u.TemperatureFormat)
-                    .HasMaxLength(10)
-                    .HasDefaultValue("Celsius");
+                b.Property(u => u.UseFarenheit)
+                    .HasDefaultValue(false);
 
-                b.Property(u => u.TimeFormat)
-                    .HasMaxLength(10)
-                    .HasDefaultValue("24h");
+                b.Property(u => u.Use12HoutFormat)
+                    .HasDefaultValue(false);
 
                 b.Property(u => u.TimeZone)
                     .HasMaxLength(50)

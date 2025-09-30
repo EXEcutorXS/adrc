@@ -158,8 +158,8 @@ class AuthApp {
             document.getElementById('user-language').textContent = user.language;
 
             // Заполняем форму обновления
-            document.getElementById('update-temperature').value = user.temperatureFormat;
-            document.getElementById('update-time').value = user.timeFormat;
+            document.getElementById('update-temperature').value = user.useFarenheit;
+            document.getElementById('update-time').value = user.use12HourFormat;
             document.getElementById('update-timezone').value = user.timeZone;
             document.getElementById('update-language').value = user.language;
 

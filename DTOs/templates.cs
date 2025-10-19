@@ -42,4 +42,20 @@ public class GetDeviceListResponse
     List<FoundDevice> Devices { get; set; }
 }
 
+public class AuthRequest
+{
+    [JsonPropertyName("username")]
+    public string Username { get; set; }
 
+    [JsonPropertyName("password")]
+    public string Password { get; set; }
+
+    [JsonPropertyName("clientid")]
+    public string ClientId { get; set; }
+
+    [JsonPropertyName("topic")]
+    public string Topic { get; set; }
+
+    [JsonPropertyName("acc")]
+    public int Acc { get; set; }
+}

@@ -54,6 +54,7 @@ namespace adrc.Controllers
                     Expiration = DateTime.Now.AddHours(Convert.ToDouble("2")),
                     User = new UserProfile
                     {
+                        UserName = user.UserName,
                         Email = user.Email,
                         UseFarenheit = user.UseFarenheit,
                         Use12HourFormat = user.Use12HoutFormat,

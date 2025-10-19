@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Advers Remote control</title>
     <link rel="stylesheet" href="index.css">
+    <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
 </head>
 <body>
     <div class="container">
@@ -16,6 +17,7 @@
             <div class="tab active" data-tab="login">Login</div>
             <div class="tab" data-tab="register">Registration</div>
             <div class="tab" data-tab="profile">Profile</div>
+            <div class="tab" data-tab="devices">Devices</div>
         </div>
 
         <div class="content">
@@ -146,11 +148,47 @@
                 <div id="profile-response" class="api-response hidden"></div>
             </div>
 
+            <!-- Список устройств -->
+            <div id="devices-section" class="form-section">
+                <h2>Список устройств</h2>
+                <p id="status">Ready to scan</p>
+                <button  onclick="startScan()">Update list</button>
+                <table id="device-list" class="devices-table" >
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>#</th>
+                            <th>Название устройства</th>
+                            <th>Последнее соединение</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <span class="status-indicator status-online" title="Устройство онлайн"></span>
+                            </td>
+                            <td class="device-name">1</td>
+                            <td class="device-name">Сервер основной</td>
+                            <td class="last-connection">2 минуты назад</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span class="status-indicator status-offline" title="Устройство оффлайн"></span>
+                            </td>
+                            <td class="device-name">2</td>
+                            <td class="device-name">Резервный сервер</td>
+                            <td class="last-connection">5 часов назад</td>
+                        </tr>
+
+                    </tbody>
+                </table>
+            </div>
 
         </div>
     </div>
 
     <script src="index.js"></script>
-    
+    <script src="mqtt.js"></script>
+
 </body>
 </html>

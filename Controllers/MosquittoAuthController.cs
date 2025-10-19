@@ -1,9 +1,11 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Text;
 using adrc.DTOs;
+using adrc.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using MQTTnet;
-using MQTTnet.LowLevelClient;
-using MQTTnet.Protocol;
+using Microsoft.IdentityModel.Tokens;
+
 
 namespace adrc;
 
@@ -13,86 +15,6 @@ public interface IMqttRetainedService
     Task<bool> HasRetainedMessageAsync(string topic);
 }
 
-public class MqttRetainedService : IMqttRetainedService, IDisposable
-{
-    private readonly IMqttClient _mqttClient;
-    private readonly MqttClientOptions _options;
-
-    public MqttRetainedService(string server = "localhost", int port = 1883)
-    {
-        var factory = new MqttClientFactory();
-        _mqttClient = factory.CreateMqttClient();
-
-        _options = new MqttClientOptionsBuilder()
-            .WithTcpServer(server, port)
-            .WithCleanSession()
-            .Build();
-    }
-
-    public async Task<string> GetRetainedMessageAsync(string topic)
-    {
-        try
-        {
-            if (!_mqttClient.IsConnected)
-            {
-                await _mqttClient.ConnectAsync(_options);
-            }
-
-            string retainedMessage = null;
-            var taskCompletionSource = new TaskCompletionSource<bool>();
-
-            // Временный обработчик для retained сообщений
-            async Task ApplicationMessageReceivedAsync(MqttApplicationMessageReceivedEventArgs e)
-            {
-                if (e.ApplicationMessage.Topic == topic && e.ApplicationMessage.Retain)
-                {
-                    retainedMessage = e.ApplicationMessage.ConvertPayloadToString();
-                    _mqttClient.ApplicationMessageReceivedAsync -= ApplicationMessageReceivedAsync;
-                    taskCompletionSource.SetResult(true);
-                }
-            }
-
-            _mqttClient.ApplicationMessageReceivedAsync += ApplicationMessageReceivedAsync;
-
-            // Подписываемся на топик - сервер сразу отправит retained сообщение если оно есть
-            var subscribeOptions = new MqttClientSubscribeOptionsBuilder()
-                .WithTopicFilter(f => f.WithTopic(topic))
-                .Build();
-
-            await _mqttClient.SubscribeAsync(subscribeOptions);
-
-            // Ждем retained сообщение короткое время (оно приходит сразу при подписке)
-            var timeoutTask = Task.Delay(1000); // 1 секунда достаточно
-            var completedTask = await Task.WhenAny(taskCompletionSource.Task, timeoutTask);
-
-            _mqttClient.ApplicationMessageReceivedAsync -= ApplicationMessageReceivedAsync;
-
-            if (completedTask == taskCompletionSource.Task)
-            {
-                return retainedMessage;
-            }
-
-            return null; // Retained сообщение не найдено
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error getting retained message: {ex.Message}");
-            return null;
-        }
-    }
-
-    public async Task<bool> HasRetainedMessageAsync(string topic)
-    {
-        var message = await GetRetainedMessageAsync(topic);
-        return message != null;
-    }
-
-    public void Dispose()
-    {
-        _mqttClient?.DisconnectAsync();
-        _mqttClient?.Dispose();
-    }
-}
 
 [ApiController]
 [Route("mqtt")]
@@ -101,10 +23,10 @@ public class MosquitoAuthController : ControllerBase
 
     private readonly IConfiguration _configuration;
     private readonly ILogger<MosquitoAuthController> _logger;
-    private readonly SignInManager<IdentityUser> _signInManager;
-    private readonly UserManager<IdentityUser> _userManager;
-    public MosquitoAuthController(SignInManager<IdentityUser> signInManager,
-                         UserManager<IdentityUser> userManager, ILogger<MosquitoAuthController> logger, IConfiguration configuration)
+    private readonly SignInManager<ApplicationUser> _signInManager;
+    private readonly UserManager<ApplicationUser> _userManager;
+    public MosquitoAuthController(SignInManager<ApplicationUser> signInManager,
+                         UserManager<ApplicationUser> userManager, ILogger<MosquitoAuthController> logger, IConfiguration configuration)
     {
         _logger = logger;
         _signInManager = signInManager;
@@ -126,9 +48,13 @@ public class MosquitoAuthController : ControllerBase
                 Error = ""
             };
 
-            if (request.Username == _configuration["ServiceLogin:Login"] && request.Password == _configuration["ServiceLogin:Password"])
+            if (request.Password.Length > 20)
             {
-                response.Ok = true;
+                if (await ValidateJwtTokenAsync(request.Password, request.Username))
+                {
+                    response.Ok = true;
+                    return Ok(response);
+                }
             }
             var user = await _userManager.FindByNameAsync(request.Username);
 
@@ -153,6 +79,39 @@ public class MosquitoAuthController : ControllerBase
         {
             _logger.LogError(ex, "Authentication error");
             return StatusCode(500, new { result = false });
+        }
+    }
+
+    private Task<bool> ValidateJwtTokenAsync(string token, string expectedUsername)
+    {
+        try
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+
+            // Используем те же параметры, что и при генерации токенов
+            var validationParameters = new TokenValidationParameters
+            {
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"])),
+                ValidateIssuer = true,
+                ValidIssuer = _configuration["Jwt:Issuer"],
+                ValidateAudience = true,
+                ValidAudience = _configuration["Jwt:Audience"],
+                ValidateLifetime = true,
+                ClockSkew = TimeSpan.Zero
+            };
+
+            // Валидируем токен
+            var principal = tokenHandler.ValidateToken(token, validationParameters, out _);
+
+            // Проверяем, что username в токене совпадает с ожидаемым
+            var usernameClaim = principal.FindFirst("UserName")?.Value;
+
+            return Task.FromResult(usernameClaim == expectedUsername);
+        }
+        catch
+        {
+            return Task.FromResult(false);
         }
     }
 }

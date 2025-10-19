@@ -88,6 +88,7 @@ class AuthApp {
         if (result.success) {
             this.token = result.data.token;
             localStorage.setItem('jwtToken', this.token);
+            localStorage.setItem('userName', login);
             this.showMessage('Successful login!');
             this.checkAuthState();
             this.switchTab('profile');
@@ -112,12 +113,12 @@ class AuthApp {
 
             const hasNumber = /\d/.test(formData.password);
             const hasUpperCase = /[A-Z]/.test(formData.password);
-
+            /*
             if (!hasNumber || !hasUpperCase) {
                 this.showMessage('Password must contain digits and uppercase!');
                 return;
             }
-
+            */
             const result = await this.makeRequest(`${this.baseUrl}/auth/register`, {
                 method: 'POST',
                 body: JSON.stringify(formData)
@@ -174,7 +175,7 @@ class AuthApp {
             temperatureFormat: document.getElementById('update-temperature').value,
             timeFormat: document.getElementById('update-time').value,
             timeZone: document.getElementById('update-timezone').value,
-            languge: document.getElementById('update-language').value
+            language: document.getElementById('update-language').value
         };
 
         try {

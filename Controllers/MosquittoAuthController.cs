@@ -71,6 +71,7 @@ public class MosquitoAuthController : ControllerBase
             {
                 response.Error = "Invalid password";
                 _logger.LogInformation($"Invalid password for user: {request.Username}");
+                return StatusCode(403,response);
             }
 
             return Ok(response);

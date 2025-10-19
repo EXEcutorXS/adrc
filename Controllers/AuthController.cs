@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 namespace adrc.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     public class AuthController : ControllerBase
     {
         private readonly UserManager<ApplicationUser> _userManager;

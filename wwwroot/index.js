@@ -1,6 +1,6 @@
 class AuthApp {
     constructor() {
-        this.baseUrl = 'http://localhost:5212/api'; // Замените на ваш URL
+        this.baseUrl = window.location.origin; // Замените на ваш URL
         this.token = localStorage.getItem('jwtToken');
 
         this.initializeEventListeners();
@@ -149,7 +149,7 @@ class AuthApp {
 
         if (result.success) {
             const user = result.data;
-            document.getElementById('user-username').textContent = user.email;
+            document.getElementById('user-username').textContent = user.userName;
             document.getElementById('user-email').textContent = user.email;
             document.getElementById('user-temperature').textContent =
                 user.useFarenheit == false ? 'Celsius (°C)' : 'Farenheit (°F)';

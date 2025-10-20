@@ -1,4 +1,4 @@
-async function scanMQTTDevices(serverUrl, login, password, maxDevices = 10) {
+async function scanMQTTDevices(serverUrl, login, password, maxDevices = 7) {
     return new Promise((resolve, reject) => {
         const devices = [];
         let client = null;
@@ -219,13 +219,10 @@ function displayResults(devices) {
 
 // Функция для запуска сканирования
 async function startScan() {
-    //const serverUrl = 'wss://' + window.location.hostname + ':8084';// document.getElementById('serverUrl').value || 'ws://localhost:9001';
-    //const login = document.getElementById('user-username').value;
-    //const password = localStorage.getItem('jwtToken');
+    const serverUrl = 'wss://' + window.location.hostname + ':8084';
+    const login = localStorage.getItem('userName');
+    const password = localStorage.getItem('jwtToken');
 
-    serverUrl = 'wss://telematic.space:8084';
-    login = "dev1";
-    password = "111111";
 
     try {
         // Очищаем предыдущие результаты

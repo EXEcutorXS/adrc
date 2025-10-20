@@ -4,10 +4,9 @@
 // NOTE: Browsers cannot speak raw TCP (1883). Your broker must expose MQTT over WebSockets.
 // If this page is served via HTTPS, switch to wss:// and ensure a valid cert on the broker.
 let WS_URL = 'wss://' + window.location.hostname + ':8084'; // Change if your WS listener differs
-//let WS_URL = 'wss://' + 'telematic.space' + ':8084'; // Change if your WS listener differs
 let USERNAME = localStorage.getItem('userName')                          // (requested)
 let PASSWORD = localStorage.getItem('jwtToken')                        // (requested)
-const DEVICE_ID = 0;
+let DEVICE_ID = localStorage.getItem('devIndex');
 
 let dayTimeout;
 let fanTimeout;

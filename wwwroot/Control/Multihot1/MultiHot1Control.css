@@ -108,7 +108,7 @@
      flex-direction: column;
      align-items: center;
      width: 30%;
-     min-width: 100px;
+     min-width: 10px;
  }
 
  .picker-label {
@@ -255,18 +255,37 @@
      color: #fc8181;
  }
 
- @media (max-width: 500px) {
-     .horizontal-pickers {
-         flex-direction: column;
-         align-items: center;
-     }
+@media (max-width: 500px) {
+    .horizontal-pickers {
+        display: flex;
+        flex-wrap: nowrap; /* Запрещаем перенос */
+        justify-content: space-between;
+        gap: 5px; /* Минимальный gap */
+        overflow-x: auto; /* Добавляем скролл если не помещается */
+        padding: 0 5px;
+    }
 
-     .picker-column {
-         width: 100%;
-         max-width: 200px;
-         margin-bottom: 20px;
-     }
- }
+    .picker-column {
+        width: 32%;
+        min-width: 80px; /* Еще компактнее */
+        margin-bottom: 0;
+        flex-shrink: 0;
+    }
+
+    .picker-label {
+        font-size: 0.8rem; /* Уменьшаем текст */
+        min-height: 2rem;
+    }
+
+    .ios-picker {
+        height: 90px;
+    }
+
+    .picker-item {
+        font-size: 16px;
+        height: 30px;
+    }
+}
 
 
  :root {

@@ -127,6 +127,7 @@ class AuthApp {
             if (result.success) {
                 this.token = result.data.token;
                 localStorage.setItem('jwtToken', this.token);
+                localStorage.setItem('userName', username);
                 this.showMessage('Sucessful registration!');
                 this.checkAuthState();
                 this.switchTab('profile');

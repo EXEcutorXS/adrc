@@ -67,7 +67,7 @@ class AuthApp {
         const data = await response.json();
 
         if (!response.ok) {
-            throw new Error(data.errors ? Object.values(data.errors).flat().join(', ') : data.message || 'Ошибка запроса');
+            throw new Error(data.errors ? Object.values(data.errors).flat().join(', ') : data.message || 'Request error');
         }
         return { success: true, data };
     } catch(error) {
@@ -113,13 +113,12 @@ class AuthApp {
             };
 
             const hasNumber = /\d/.test(formData.password);
-            const hasUpperCase = /[A-Z]/.test(formData.password);
-            /*
-            if (!hasNumber || !hasUpperCase) {
+            
+            if (!hasNumber ) {
                 this.showMessage('Password must contain digits and uppercase!');
                 return;
             }
-            */
+            
             const result = await this.makeRequest(`${this.baseUrl}/auth/register`, {
                 method: 'POST',
                 body: JSON.stringify(formData)
@@ -199,14 +198,13 @@ class AuthApp {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 
-            this.showMessage('Progile update successfully');
+            this.showMessage('Profile updated successfully');
 
         } catch (error) {
             console.error('Error:', error);
         }
 
     }
-
 
     logout() {
         this.token = null;
@@ -225,9 +223,9 @@ class AuthApp {
             });
         } else {
 
-            // Скрываем табу профиля для неавторизованных
+            // Скрываем табы профиля и устройств для неавторизованных
             document.querySelectorAll('.tab').forEach(tab => {
-                if (tab.dataset.tab === 'profile') {
+                if (tab.dataset.tab === 'profile' || tab.dataset.tab === 'devices') {
                     tab.style.display = 'none';
                 } else {
                     tab.style.display = 'flex';

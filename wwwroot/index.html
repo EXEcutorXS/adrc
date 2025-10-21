@@ -109,7 +109,7 @@
                 <h3>Update settings</h3>
                 <form id="update-profile-form">
                     <div class="form-group">
-                        <label for="update-temperature">Формат температуры:</label>
+                        <label for="update-temperature">Temperature format:</label>
                         <select id="update-temperature" required>
                             <option value=false>Celsius (°C)</option>
                             <option value=true>Farenheit (°F)</option>
@@ -150,7 +150,7 @@
 
             <!-- Список устройств -->
             <div id="devices-section" class="form-section">
-                <h2>Список устройств</h2>
+                <h2>Device list</h2>
                 <p id="status">Ready to scan</p>
                 <button  onclick="startScan()">Update list</button>
                 <table id="device-list" class="devices-table" >
@@ -158,28 +158,11 @@
                         <tr>
                             <th></th>
                             <th>#</th>
-                            <th>Название устройства</th>
-                            <th>Последнее соединение</th>
+                            <th>Device type</th>
+                            <th>Last seen</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>
-                                <span class="status-indicator status-online" title="Устройство онлайн"></span>
-                            </td>
-                            <td class="device-name">1</td>
-                            <td class="device-name">Сервер основной</td>
-                            <td class="last-connection">2 минуты назад</td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <span class="status-indicator status-offline" title="Устройство оффлайн"></span>
-                            </td>
-                            <td class="device-name">2</td>
-                            <td class="device-name">Резервный сервер</td>
-                            <td class="last-connection">5 часов назад</td>
-                        </tr>
-
                     </tbody>
                 </table>
             </div>

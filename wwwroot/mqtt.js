@@ -157,29 +157,23 @@ function formatSeconds(seconds) {
     }
 
     if (seconds < 60) {
-        return pluralize(seconds, ['секунда', 'секунды', 'секунд']);
+        return seconds + 'sec';
     }
 
     const minutes = Math.round(seconds / 60);
     if (minutes < 60) {
-        return pluralize(minutes, ['минута', 'минуты', 'минут']);
+        return minutes + 'min';
     }
 
     const hours = Math.round(seconds / 3600);
     if (hours < 24) {
-        return pluralize(hours, ['час', 'часа', 'часов']);
+        return hours + 'h';
     }
 
     const days = Math.round(seconds / 86400);
-    return pluralize(days, ['день', 'дня', 'дней']);
+    return days + 'd';
 }
 
-// Функция для правильного склонения слов
-function pluralize(number, words) {
-    const cases = [2, 0, 1, 1, 1, 2];
-    const wordIndex = (number % 100 > 4 && number % 100 < 20) ? 2 : cases[Math.min(number % 10, 5)];
-    return `${number} ${words[wordIndex]}`;
-}
 
 function displayResults(devices) {
     const resultsElement = document.querySelector('#device-list tbody');
@@ -197,9 +191,9 @@ function displayResults(devices) {
             new Date(device.lastContact * 1000).toLocaleString() : 'N/A';
         const secondsAgo = device.secondsSinceContact || 'N/A';
 
-        let onlineIcon = '<span class="status-indicator status-online" title="Устройство онлайн"></span>';
+        let onlineIcon = '<span class="status-indicator status-online"></span>';
         if (secondsAgo > 600)
-            onlineIcon = '<span class="status-indicator status-offline" title="Устройство онлайн"></span>';
+            onlineIcon = '<span class="status-indicator status-offline"></span>';
         html += `
                     <tr data-href= '/Control/${device.devType}/${device.devType}Control.html' dev-index='${device.index}'}>
                     <td>

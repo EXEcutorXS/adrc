@@ -1,6 +1,6 @@
 class AuthApp {
     constructor() {
-        this.baseUrl = window.location.origin; // Çàìåíèòå íà âàø URL
+        this.baseUrl = window.location.origin; // Ð—Ð°Ð¼ÐµÐ½Ð¸Ñ‚Ðµ Ð½Ð° Ð²Ð°Ñˆ URL
         this.token = localStorage.getItem('jwtToken');
 
         this.initializeEventListeners();
@@ -8,34 +8,34 @@ class AuthApp {
     }
 
     initializeEventListeners() {
-        // Ïåðåêëþ÷åíèå òàáîâ
+        // ÐŸÐµÑ€ÐµÐºÐ»ÑŽÑ‡ÐµÐ½Ð¸Ðµ Ñ‚Ð°Ð±Ð¾Ð²
         document.querySelectorAll('.tab').forEach(tab => {
             tab.addEventListener('click', (e) => {
                 this.switchTab(e.target.dataset.tab);
             });
         });
 
-        // Ôîðìû
+        // Ð¤Ð¾Ñ€Ð¼Ñ‹
         document.getElementById('login-form').addEventListener('submit', (e) => this.login(e));
         document.getElementById('register-form').addEventListener('submit', (e) => this.register(e));
         document.getElementById('update-profile-form').addEventListener('submit', (e) => this.updateProfile(e));
 
-        // Âûõîä
+        // Ð’Ñ‹Ñ…Ð¾Ð´
         document.getElementById('logout-btn')?.addEventListener('click', () => this.logout());
     }
 
     switchTab(tabName) {
-        // Îáíîâëÿåì àêòèâíûå òàáû
+        // ÐžÐ±Ð½Ð¾Ð²Ð»ÑÐµÐ¼ Ð°ÐºÑ‚Ð¸Ð²Ð½Ñ‹Ðµ Ñ‚Ð°Ð±Ñ‹
         document.querySelectorAll('.tab').forEach(tab => {
             tab.classList.toggle('active', tab.dataset.tab === tabName);
         });
 
-        // Ïîêàçûâàåì ñîîòâåòñòâóþùèé ðàçäåë
+        // ÐŸÐ¾ÐºÐ°Ð·Ñ‹Ð²Ð°ÐµÐ¼ ÑÐ¾Ð¾Ñ‚Ð²ÐµÑ‚ÑÑ‚Ð²ÑƒÑŽÑ‰Ð¸Ð¹ Ñ€Ð°Ð·Ð´ÐµÐ»
         document.querySelectorAll('.form-section').forEach(section => {
             section.classList.toggle('active', section.id === `${tabName}-section`);
         });
 
-        // Åñëè ïåðåêëþ÷èëèñü íà ïðîôèëü è àâòîðèçîâàíû - çàãðóæàåì äàííûå
+        // Ð•ÑÐ»Ð¸ Ð¿ÐµÑ€ÐµÐºÐ»ÑŽÑ‡Ð¸Ð»Ð¸ÑÑŒ Ð½Ð° Ð¿Ñ€Ð¾Ñ„Ð¸Ð»ÑŒ Ð¸ Ð°Ð²Ñ‚Ð¾Ñ€Ð¸Ð·Ð¾Ð²Ð°Ð½Ñ‹ - Ð·Ð°Ð³Ñ€ÑƒÐ¶Ð°ÐµÐ¼ Ð´Ð°Ð½Ð½Ñ‹Ðµ
         if (tabName === 'profile' && this.token) {
             this.loadUserProfile();
         }
@@ -55,9 +55,10 @@ class AuthApp {
     async makeRequest(url, options = {}) {
 
         const config = {
-            ...options,  // ñíà÷àëà options
-            headers: {   // çàòåì headers (ïåðåçàïèñûâàåò headers èç options)
+            ...options,  // ÑÐ½Ð°Ñ‡Ð°Ð»Ð° options
+            headers: {   // Ð·Ð°Ñ‚ÐµÐ¼ headers (Ð¿ÐµÑ€ÐµÐ·Ð°Ð¿Ð¸ÑÑ‹Ð²Ð°ÐµÑ‚ headers Ð¸Ð· options)
                 'Content-Type': 'application/json',
+                'Accept-Charset': 'utf-8',
                 ...options.headers
             }
         };
@@ -66,7 +67,7 @@ class AuthApp {
         const data = await response.json();
 
         if (!response.ok) {
-            throw new Error(data.errors ? Object.values(data.errors).flat().join(', ') : data.message || 'Îøèáêà çàïðîñà');
+            throw new Error(data.errors ? Object.values(data.errors).flat().join(', ') : data.message || 'ÐžÑˆÐ¸Ð±ÐºÐ° Ð·Ð°Ð¿Ñ€Ð¾ÑÐ°');
         }
         return { success: true, data };
     } catch(error) {
@@ -153,13 +154,13 @@ class AuthApp {
             document.getElementById('user-username').textContent = user.userName;
             document.getElementById('user-email').textContent = user.email;
             document.getElementById('user-temperature').textContent =
-                user.useFarenheit == false ? 'Celsius (°C)' : 'Farenheit (°F)';
+                user.useFarenheit == false ? 'Celsius (Â°C)' : 'Farenheit (Â°F)';
             document.getElementById('user-time').textContent =
                 user.user12HourFormat == false ? '24 hour format' : '12 hour format';
             document.getElementById('user-timezone').textContent = user.timeZone;
             document.getElementById('user-language').textContent = user.language;
 
-            // Çàïîëíÿåì ôîðìó îáíîâëåíèÿ
+            // Ð—Ð°Ð¿Ð¾Ð»Ð½ÑÐµÐ¼ Ñ„Ð¾Ñ€Ð¼Ñƒ Ð¾Ð±Ð½Ð¾Ð²Ð»ÐµÐ½Ð¸Ñ
             document.getElementById('update-temperature').value = user.useFarenheit;
             document.getElementById('update-time').value = user.use12HourFormat;
             document.getElementById('update-timezone').value = user.timeZone;
@@ -218,13 +219,13 @@ class AuthApp {
     checkAuthState() {
 
         if (this.token) {
-            // Ïîêàçûâàåì âñå òàáû äëÿ àâòîðèçîâàííûõ ïîëüçîâàòåëåé
+            // ÐŸÐ¾ÐºÐ°Ð·Ñ‹Ð²Ð°ÐµÐ¼ Ð²ÑÐµ Ñ‚Ð°Ð±Ñ‹ Ð´Ð»Ñ Ð°Ð²Ñ‚Ð¾Ñ€Ð¸Ð·Ð¾Ð²Ð°Ð½Ð½Ñ‹Ñ… Ð¿Ð¾Ð»ÑŒÐ·Ð¾Ð²Ð°Ñ‚ÐµÐ»ÐµÐ¹
             document.querySelectorAll('.tab').forEach(tab => {
                 tab.style.display = 'flex';
             });
         } else {
 
-            // Ñêðûâàåì òàáó ïðîôèëÿ äëÿ íåàâòîðèçîâàííûõ
+            // Ð¡ÐºÑ€Ñ‹Ð²Ð°ÐµÐ¼ Ñ‚Ð°Ð±Ñƒ Ð¿Ñ€Ð¾Ñ„Ð¸Ð»Ñ Ð´Ð»Ñ Ð½ÐµÐ°Ð²Ñ‚Ð¾Ñ€Ð¸Ð·Ð¾Ð²Ð°Ð½Ð½Ñ‹Ñ…
             document.querySelectorAll('.tab').forEach(tab => {
                 if (tab.dataset.tab === 'profile') {
                     tab.style.display = 'none';
@@ -236,7 +237,7 @@ class AuthApp {
     }
 }
 
-// Èíèöèàëèçàöèÿ ïðèëîæåíèÿ ïðè çàãðóçêå ñòðàíèöû
+// Ð˜Ð½Ð¸Ñ†Ð¸Ð°Ð»Ð¸Ð·Ð°Ñ†Ð¸Ñ Ð¿Ñ€Ð¸Ð»Ð¾Ð¶ÐµÐ½Ð¸Ñ Ð¿Ñ€Ð¸ Ð·Ð°Ð³Ñ€ÑƒÐ·ÐºÐµ ÑÑ‚Ñ€Ð°Ð½Ð¸Ñ†Ñ‹
 document.addEventListener('DOMContentLoaded', () => {
     new AuthApp();
 });
